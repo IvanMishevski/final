@@ -1,0 +1,135 @@
+﻿@model final.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login - Camp Rating";
+}
+
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+        }
+
+    .btn-login {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .btn-login:hover {
+            background-color: #2980b9;
+        }
+
+    .validation-summary {
+        color: #e74c3c;
+        background-color: #fadbd8;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+        .register-link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+            .register-link a:hover {
+                text-decoration: underline;
+            }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+
+        .remember-me input {
+            margin-right: 0.5rem;
+            width: auto;
+        }
+</style>
+
+<div class="login-container">
+    <h2 class="login-header">🏕️ Login to Your Account</h2>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary">
+            <div asp-validation-summary="All"></div>
+        </div>
+    }
+
+    <form asp-controller="Account" asp-action="Login" method="post">
+        <div class="form-group">
+            <label asp-for="Email" class="form-label">Email Address</label>
+            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="remember-me">
+            <input asp-for="RememberMe" type="checkbox" />
+            <label asp-for="RememberMe">Remember me</label>
+        </div>
+
+        <button type="submit" class="btn-login">Login</button>
+    </form>
+
+    <div class="register-link">
+        <p>Don't have an account? <a asp-controller="Account" asp-action="Register">Register here</a></p>
+    </div>
+</div>

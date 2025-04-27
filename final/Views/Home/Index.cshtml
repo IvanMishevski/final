@@ -1,0 +1,291 @@
+﻿@using Microsoft.IdentityModel.Tokens
+@model IEnumerable<final.Models.Camp>
+
+@{
+    ViewData["Title"] = "Wilderness Explorer - Find Your Perfect Camping Spot";
+    var searchTerm = ViewData["SearchTerm"] as string;
+}
+
+<!-- Custom styling for camp cards and page -->
+<style>
+    /* General page styling */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f5f5f5;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+    }
+
+    h2 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+    }
+
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -15px;
+    }
+
+    .col-md-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+        padding: 0 15px;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Card styling */
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .camp-card {
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .camp-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .camp-image {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #2c3e50;
+    }
+
+    .card-text {
+        color: #555;
+        margin-bottom: 1rem;
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+
+    /* Button styling */
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        text-decoration: none;
+        margin-right: 5px;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+    }
+    
+    .btn-outline-secondary {
+        color: #6c757d;
+        background-color: transparent;
+        border-color: #6c757d;
+    }
+    
+    .btn-outline-secondary:hover {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    
+    .ml-2 {
+        margin-left: 0.5rem;
+    }
+
+    /* Search result message */
+    .search-result-message {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    
+    .search-highlight {
+        font-weight: bold;
+        color: #3498db;
+        margin: 0 5px;
+    }
+    
+    .alert {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+    }
+    
+    .alert-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 992px) {
+        .col-md-4 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .col-md-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<!-- Main content container -->
+<div class="text-center">
+    <!-- Welcome header -->
+    <h1 class="display-4">Welcome to Wilderness Explorer!</h1>
+    
+    <!-- Search results message -->
+    @if (!string.IsNullOrEmpty(searchTerm))
+    {
+        <div class="search-result-message">
+            Showing results for:<span class="search-highlight">@searchTerm</span>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-outline-secondary ml-2">Clear</a>
+        </div>
+    }
+
+    <!-- Admin action to create new camp -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="mb-3">
+            <a asp-controller="Camp" asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Camp
+            </a>
+        </div>
+    }
+
+    <!-- Top camping sites section -->
+    <h2 class="mt-4">🏕️ @(string.IsNullOrEmpty(searchTerm) ? "Featured Camping Sites" : "Search Results")</h2>
+    
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No camps found matching your search criteria.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Camp cards loop -->
+            @foreach (var camp in Model)
+            {
+                <div class="col-md-4">
+                    <!-- Individual camp card -->
+                    <div class="card camp-card mb-3">
+                        <div class="card-body">
+                            <!-- Camp photo -->
+                            @if (!string.IsNullOrEmpty(camp.PhotoPath))
+                            {
+                                <img src="@Url.Content(camp.PhotoPath)" class="card-img-top camp-image mb-3" alt="@camp.Name">
+                            }
+                            else
+                            {
+                                <img src="/images/default-camp.jpg" class="card-img-top camp-image mb-3" alt="Default camp image">
+                            }
+
+                            <!-- Camp details -->
+                            <h5 class="card-title">@camp.Name</h5>
+                            <p class="card-text">@(camp.Description.Length > 100 ? camp.Description.Substring(0, 100) + "..." : camp.Description)</p>
+
+                            <!-- Rating display -->
+                            @if (camp.Reviews != null && camp.Reviews.Any())
+                            {
+                                var avgRating = camp.Reviews.Average(r => r.Rating);
+                                <p>
+                                    <strong>Rating:</strong> @avgRating.ToString("F1")/5
+                                    (@camp.Reviews.Count() reviews)
+                                </p>
+                            }
+                            else
+                            {
+                                <p>No reviews yet</p>
+                            }
+
+                            <!-- Location info -->
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Coordinates: @camp.Latitude.ToString("F4"), @camp.Longitude.ToString("F4")
+                                </small>
+                            </p>
+
+                            <!-- Details link -->
+                            <a asp-controller="Camp" asp-action="Details" asp-route-id="@camp.Id" class="btn btn-primary">Details</a>               
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,287 @@
+﻿@model final.Models.Camp
+
+@{
+    ViewData["Title"] = "Camp Details";
+}
+
+<style>
+    .camp-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .camp-image-container {
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .camp-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .no-image {
+        background-color: #f8f9fa;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+    .info-card {
+        height: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+
+    .card-title {
+        color: #2c3e50;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .review-section {
+        margin-top: 40px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .review-title {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+
+    .review-item {
+        border-bottom: 1px solid #eee;
+        padding: 15px;
+        background-color: white;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+    .review-rating {
+        font-weight: 600;
+        color: #f39c12;
+    }
+
+    .review-date {
+        color: #7f8c8d;
+    }
+
+    .admin-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .btn-space {
+        margin-right: 10px;
+    }
+
+    .btn {
+        border-radius: 5px;
+        padding: 8px 16px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        color: white !important;
+    }
+
+    .btn-secondary {
+        background-color: #7f8c8d;
+        border-color: #7f8c8d;
+    }
+
+    .btn-warning {
+        background-color: #f39c12;
+        border-color: #f39c12;
+    }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        border-color: #e74c3c;
+    }
+
+    .location-info {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    /* Fix for button links */
+    a.btn {
+        text-decoration: none;
+        color: white !important;
+    }
+
+        a.btn:hover {
+            text-decoration: none;
+            color: white !important;
+        }
+
+    .btn-warning {
+        background-color: #f39c12;
+        border-color: #f39c12;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem;
+    }
+
+    .d-inline {
+        display: inline;
+    }
+</style>
+
+<div class="camp-container">
+    <h1 class="page-title">@Model.Name</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="camp-image-container">
+                @if (!string.IsNullOrEmpty(Model.PhotoPath))
+                {
+                    <img src="@Model.PhotoPath" class="camp-image" alt="@Model.Name" />
+                }
+                else
+                {
+                    <div class="no-image">
+                        <span class="text-muted">No image available</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card info-card">
+                <div class="card-body">
+                    <h5 class="card-title">Description</h5>
+                    <p class="card-text">@Model.Description</p>
+
+                    <h5 class="card-title mt-4">Location</h5>
+                    <div class="location-info">
+                        <p class="card-text mb-0">
+                            <strong>Latitude:</strong> @Model.Latitude<br />
+                            <strong>Longitude:</strong> @Model.Longitude
+                        </p>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary btn-space">Back to List</a>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="admin-actions">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-space">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-space">Delete</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="review-section">
+        <h3 class="review-title">Reviews</h3>
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            <div class="list-group">
+                @foreach (var review in Model.Reviews)
+                {
+                    <div class="review-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 review-rating">Rating: @review.Rating / 5</h5>
+                            <small class="review-date">@review.CreatedAt.ToString("MMM dd, yyyy")</small>
+                        </div>
+                        <p class="mb-1 mt-2">@review.Content</p>
+                        <small class="text-muted">By: @review.User.FirstName @review.User.LastName</small>
+
+                        @if (User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.Identity.Name == review.User.UserName))
+                        {
+                            <div class="mt-2">
+                                <a asp-controller="Review" asp-action="Edit" asp-route-id="@review.Id" class="btn btn-sm btn-warning me-2">
+                                    Edit
+                                </a>
+                                <form asp-controller="Review" asp-action="Delete" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@review.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Are you sure you want to delete this review?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <p class="text-center">No reviews yet.</p>
+        }
+        @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin"))
+        {
+            <div class="add-review-form mt-4">
+                <h4>Add Your Review</h4>
+                <form asp-controller="Review" asp-action="Create" method="post">
+                    <input type="hidden" name="CampId" value="@Model.Id" />
+
+                    <div class="form-group mb-3">
+                        <label for="Rating">Rating (1-5)</label>
+                        <select class="form-control" id="Rating" name="Rating" required>
+                            <option value="">Select a rating</option>
+                            <option value="1">1 - Poor</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="3">3 - Good</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="Content">Your Review</label>
+                        <textarea class="form-control" id="Content" name="Content" rows="4"
+                                  required minlength="10" maxlength="1000"></textarea>
+                        <small class="form-text text-muted">Minimum 10 characters required.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="text-center mt-4">
+                    <p>Please <a asp-controller="Account" asp-action="Login">log in</a> to leave a review.</p>
+                </div>
+            }   
+        }
+    </div>
+</div>
